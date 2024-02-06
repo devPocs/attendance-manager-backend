@@ -65,7 +65,7 @@ app.use(cors());
 
 app.get("/home", (req, res, next)=>{
   return res.send("this is the home page, man")
-  next()
+  
 })
 
 //define app middlwares
