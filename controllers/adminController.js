@@ -118,7 +118,7 @@ exports.getEmployeeTimeIns = catchAsync(async (req, res, next) => {
   const employeeId = req.body.employeeId;
 
   const timeInDetails = await TimeIn.findOne({ employeeId: employeeId });
-  if (timeInDetails.length === 0) {
+  if (timeInDetails.length === 0 || timeInDetails === null) {
     return res.status(404).json({
       message:
         "Either no employee with that id or Employee has never signed in!",

@@ -88,7 +88,7 @@ admin.post("/employee_times", getEmployeeTimeIns);
 //router.delete("/delete", deleteEmployee)
 
 //super_admin routes
-http: superAdmin.post("/create_admin", createAdmin);
+superAdmin.post("/create_admin", createAdmin);
 superAdmin.delete("/delete_admin", deleteAdmin);
 superAdmin.get("/get_admin", getAdmins);
 
