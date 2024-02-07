@@ -69,15 +69,15 @@ app.get("/home", (req, res, next)=>{
 })
 
 //define app middlwares
-app.use("/departments", departmentRoute);
-app.use("/employees", employeeRoute);
-app.use("/employees/signIn", timeInRoute);
-app.use("/attendance", employeeAttendanceRoute);
+app.use("/api/v1/departments", departmentRoute);
+app.use("/api/v1/employees", employeeRoute);
+app.use("/api/v1/employees/signIn", timeInRoute);
+app.use("/api/v1/attendance", employeeAttendanceRoute);
 //app.get("/app/v1/get_event", myCalendar);
+app.use("/api/v1/", viewsRoute);
 
-
-app.use(["/admin", "/app/v1/superAdmin"], admin);
-app.use("/superAdmin", superAdmin);
+app.use(["/api/v1/admin", "/app/v1/superAdmin"], admin);
+app.use("/api/v1/superAdmin", superAdmin);
 
 initializeTimeIn();
 
