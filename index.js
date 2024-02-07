@@ -63,7 +63,7 @@ app.use(cors());
 
 
 
-app.get("/home", (req, res, next)=>{
+app.use("/home", (req, res, next)=>{
   return res.send("this is the home page, man")
   
 })
