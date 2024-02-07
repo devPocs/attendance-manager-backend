@@ -73,7 +73,7 @@ app.use("/app/v1/departments", departmentRoute);
 app.use("/app/v1/employees", employeeRoute);
 app.use("/app/v1/employees/signIn", timeInRoute);
 app.use("/app/v1/attendance", employeeAttendanceRoute);
-app.get("/app/v1/get_event", myCalendar);
+//app.get("/app/v1/get_event", myCalendar);
 app.use("/app/v1/", viewsRoute);
 
 app.use(["/app/v1/admin", "/app/v1/superAdmin"], admin);
