@@ -16,7 +16,15 @@ const employeeSchema = new mongoose.Schema({
   role: String,
   gender: String,
   isAdmin: { type: Boolean, default: false },
-  image: String,
+  label: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  descriptions: {
+    type: Array,
+    required: true,
+  },
   createdAt: { type: Date, default: new Date() },
 });
 

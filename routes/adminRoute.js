@@ -2,26 +2,17 @@ const express = require("express");
 const admin = express();
 const superAdmin = express();
 const multer = require("multer");
+const fileUpload = require("express-fileupload");
 const cloudinary = require("cloudinary").v2;
-
 const fs = require("fs");
 
-// Multer configuration for image uploads
+// Multer configuration for image uploads.
 const storage = multer.memoryStorage(); // Use memory storage for storing images temporarily
 
-// Adjust the fileFilter to accept only image files
-const imageFilter = (req, file, cb) => {
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-    return cb(new Error("Only image files are allowed!"), false);
-  }
-  cb(null, true);
-};
-
-// Multer middleware with fileFilter
+// Multer middleware to receive multiple images.
 const upload = multer({
   storage: storage,
-  fileFilter: imageFilter,
-}).single("image"); // Use 'image' as the field name
+}).fields([{ name: "image1", name: "image2", name: "image3" }]);
 
 const { protectRoute } = require("./../controllers/authController");
 const {
@@ -43,43 +34,49 @@ const { checkNewUser } = require("../utils/validators");
 
 admin.post("/login", login);
 
-admin.post(
-  "/create_new_employee",
-  upload,
-  async (req, res, next) => {
-    // Check if there's a file in the request
-    if (!req.file) {
-      return res.status(400).json({ error: "No image file provided" });
-    }
+admin.post("/create_new_employee", upload, async (req, res, next) => {
+  //Check if there's a file in the request
 
-    const imageBuffer = req.file.buffer;
+  if (!req.files.image1 || !req.files.image2 || req.files.image3) {
+    return res
+      .status(400)
+      .json({ error: "image files not completely provided" });
+  }
 
-    try {
-      const result = await cloudinary.uploader
-        .upload_stream({ folder: "employee-images" }, (error, result) => {
-          if (error) {
-            console.error(error);
-            return res.status(500).json({
-              status: "INTERNAL SERVER ERROR",
-              message: "Error uploading image to Cloudinary",
-            });
-          }
+  const images = [
+    req.files.image1[0].buffer,
+    req.files.image2[0].buffer,
+    req.files.image3[0].buffer,
+  ];
 
-          req.image = result.secure_url;
-          next();
-        })
-        .end(imageBuffer);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({
-        status: "INTERNAL SERVER ERROR",
-        message: "Error uploading image to Cloudinary",
-      });
-    }
-  },
-  checkNewUser,
-  addNewEmployee
-);
+  req.images = images;
+  next();
+  //
+  //  try {
+  //    const result = await cloudinary.uploader
+  //      .upload_stream({ folder: "employee-images" }, (error, result) => {
+  //        if (error) {
+  //          console.error(error);
+  //          return res.status(500).json({
+  //            status: "INTERNAL SERVER ERROR",
+  //            message: "Error uploading image to Cloudinary",
+  //          });
+  //        }
+  //
+  //        req.image = result.secure_url;
+  //        next();
+  //      })
+  //      .end(imageBuffer);
+  //  } catch (error) {
+  //    console.error(error);
+  //    return res.status(500).json({
+  //      status: "INTERNAL SERVER ERROR",
+  //      message: "Error uploading image to Cloudinary",
+  //    });
+  //  }
+  //},
+  checkNewUser, addNewEmployee;
+});
 
 admin.get("/all_employees", getAllEmployees);
 admin.get("/search_employee", getEmployee);

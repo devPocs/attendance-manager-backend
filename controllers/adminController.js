@@ -6,8 +6,9 @@ const niv = require("node-input-validator");
 const { generateEmployeeId } = require("../utils/helperFunctions");
 const nodemailer = require("nodemailer");
 const catchAsync = require("../utils/catchAsync");
-
-//have a function here to generate a random coded string,
+const canvas = require("canvas");
+const fileUpload = require("express-fileupload");
+const faceapi = require("face-api.js");
 
 //setup the nodemailer options. take this to the config file later.
 const transporter = nodemailer.createTransport({
@@ -20,14 +21,30 @@ const transporter = nodemailer.createTransport({
 
 exports.addNewEmployee = catchAsync(async (req, res, next) => {
   const { name, email, department, role, gender } = req.body;
-  const image = req.image;
+
+  //note that the images are stored in req.images
+
+  const descriptions = [];
+  // Loop through the images
+  for (let i = 0; i < req.images.length; i++) {
+    const img = await canvas.loadImage(req.images[i]);
+    // Read each face and save the face descriptions in the descriptions array
+    const detections = await faceapi
+      .detectSingleFace(img)
+      .withFaceLandmarks()
+      .withFaceDescriptor();
+    descriptions.push(detections.descriptor);
+  }
+
+  // Create a new employee document with the given labels, decription and the other details and save it in DB
+
   const newEmployee = await Employee.create({
     name: name,
     email: email,
     department: department,
     role: role,
     gender: gender,
-    image: image,
+    descriptions,
   });
   if (newEmployee) {
     const mailOptions = {
@@ -120,7 +137,7 @@ exports.getEmployeeTimeIns = catchAsync(async (req, res, next) => {
   const timeInDetails = await TimeIn.findOne({ employeeId: employeeId });
   if (!timeInDetails) {
     return res.status(404).json({
-      success:false,
+      success: false,
       message:
         "Either no employee with that id or Employee has never signed in!",
     });
