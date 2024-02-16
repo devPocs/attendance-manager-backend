@@ -16,6 +16,9 @@ const viewsRoute = require("./routes/viewsRoute");
 //const { myCalendar } = require("./calendar");
 const { initializeTimeIn } = require("./utils/helperFunctions");
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const faceapi = require("face-api.js");
+const { Canvas, Image } = require("canvas");
+faceapi.env.monkeyPatch({ Canvas, Image });
 
 //main app
 const app = express();
@@ -34,39 +37,48 @@ cloudinary.config({
   api_secret: "lgZrOgteHsLtLS41HywQrAI8JY0",
 });
 
-//mongoose.connect("mongodb://127.0.0.1:27017/AttendanceManager");
+mongoose.connect("mongodb://127.0.0.1:27017/AttendanceManager");
 
-const uri =
-  "mongodb+srv://pokohufuoma:ZzDT4rHtbSC4VSY1@cluster0.zjsj0kz.mongodb.net/Application-Manager?retryWrites=true&w=majority";
+//const uri =
+//"mongodb+srv://pokohufuoma:ZzDT4rHtbSC4VSY1@cluster0.zjsj0kz.mongodb.net/Application-Manager?retryWrites=true&w=majority";
 
 //db connection.
-mongoose
-  .connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("Connected to MongoDB Atlas");
-  })
-  .catch((err) => {
-    console.error("Error connecting to MongoDB Atlas:", err);
-  });
+//mongoose
+//  .connect(uri, {
+//    useNewUrlParser: true,
+//    useUnifiedTopology: true,
+//  })
+//  .then(() => {
+//    console.log("Connected to MongoDB Atlas");
+//  })
+//  .catch((err) => {
+//    console.error("Error connecting to MongoDB Atlas:", err);
+//  });
 
-//
+const corsOptions = {
+  origin: "http://localhost:3000",
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
+async function LoadModels() {
+  // Load the models
+  // __dirname gives the root directory of the server
+  await faceapi.nets.faceRecognitionNet.loadFromDisk(__dirname + "/faceModels");
+  await faceapi.nets.faceLandmark68Net.loadFromDisk(__dirname + "/faceModels");
+  await faceapi.nets.ssdMobilenetv1.loadFromDisk(__dirname + "/faceModels");
+}
+LoadModels();
+
 //app middlewares
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
+app.use(cors(corsOptions));
 
-
-
-
-app.use("/home", (req, res, next)=>{
-  return res.send("this is the home page, man")
-  
-})
+app.use("/home", (req, res, next) => {
+  return res.send("this is the home page, man");
+});
 
 //define app middlwares
 app.use("/api/v1/departments", departmentRoute);

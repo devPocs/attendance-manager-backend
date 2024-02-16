@@ -19,7 +19,6 @@ const employeeSchema = new mongoose.Schema({
   label: {
     type: String,
     required: true,
-    unique: true,
   },
   descriptions: {
     type: Array,

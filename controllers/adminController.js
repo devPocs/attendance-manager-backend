@@ -6,11 +6,14 @@ const niv = require("node-input-validator");
 const { generateEmployeeId } = require("../utils/helperFunctions");
 const nodemailer = require("nodemailer");
 const catchAsync = require("../utils/catchAsync");
-const canvas = require("canvas");
+const { createCanvas, loadImage } = require("canvas");
+const canvas = createCanvas();
 const fileUpload = require("express-fileupload");
 const faceapi = require("face-api.js");
 
-//setup the nodemailer options. take this to the config file later.
+const blobUtil = require("blob-util");
+
+// setup the nodemailer options. take this to the config file later.
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -19,67 +22,78 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-exports.addNewEmployee = catchAsync(async (req, res, next) => {
-  const { name, email, department, role, gender } = req.body;
-
-  //note that the images are stored in req.images
+exports.addNewEmployee = async (req, res, next) => {
+  const { name, email, department, role, gender, label } = req.body;
 
   const descriptions = [];
-  // Loop through the images
-  for (let i = 0; i < req.images.length; i++) {
-    const img = await canvas.loadImage(req.images[i]);
-    // Read each face and save the face descriptions in the descriptions array
-    const detections = await faceapi
-      .detectSingleFace(img)
-      .withFaceLandmarks()
-      .withFaceDescriptor();
-    descriptions.push(detections.descriptor);
-  }
 
-  // Create a new employee document with the given labels, decription and the other details and save it in DB
+  try {
+    // Loop through the images
+    for (let i = 0; i < req.images.length; i++) {
+      const imageData = req.images[i];
+      const image = await loadImage(imageData);
 
-  const newEmployee = await Employee.create({
-    name: name,
-    email: email,
-    department: department,
-    role: role,
-    gender: gender,
-    descriptions,
-  });
-  if (newEmployee) {
-    const mailOptions = {
-      from: "pokoh.ufuoma@gmail.com",
-      to: email,
-      subject: "New Employee",
-      text: `<h2>Hello, ${name},</h2>
-    <p>You have been onboarded. Your employee id is: <h2>You dey worry sha😂... I dey see your messages!</h2> 
-    <h3>Pls, be sure to keep this safe and you would need it to enable you sign in.</h3>
-    <p>Thanks and warm regards.</p>`,
+      // Create a canvas with the same dimensions as the image
+      const canvas = createCanvas(image.width, image.height);
+      const ctx = canvas.getContext("2d");
 
-      html: `<h2>Hello, ${name},</h2> 
-    <p>You have been onboarded. Your employee id is: <h2>You dey worry sha😂... I dey see your messages!</h2> 
-    <h3>Pls, be sure to keep this safe and you would need it to enable you sign in.</h3>
-    <p>Thanks and warm regards.</p>`,
-    };
+      // Draw the image on the canvas
+      ctx.drawImage(image, 0, 0);
 
-    //  return res.status(200).json({
-    //    message: "saved successfully!",
-    //    status: "success",
-    //    newEmployee,
-    //  });
-    //} else {
-    //  return res.status(400).json({ message: "unsuccessful" });
-    //}
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-        return res.status(500).send(`Failed to send email, ${error}`);
-      } else {
-        return res.status(200).json({ message: "Email sent successfully" });
-      }
+      // Read each face and save the face descriptions in the descriptions array
+      console.log(canvas);
+      const detections = await faceapi
+        .detectSingleFace(canvas)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+
+      console.log(detections);
+      descriptions.push(detections.descriptor);
+    }
+
+    // Create a new employee document with the given description, and other details and save it in DB
+    const newEmployee = await Employee.create({
+      name: name,
+      email: email,
+      department: department,
+      role: role,
+      gender: gender,
+      label: label,
+      descriptions: descriptions,
+    });
+
+    if (newEmployee) {
+      const mailOptions = {
+        from: "pokoh.ufuoma@gmail.com",
+        to: email,
+        subject: "New Employee",
+        text: `Hello, ${name},\n\nYou have been onboarded. Your employee id is: ${newEmployee._id}\n\nPls, be sure to keep this safe and you would need it to enable you to sign in.\n\nThanks and warm regards.`,
+
+        html: `<h2>Hello, ${name},</h2> 
+        <p>You have been onboarded. Your employee id is: <strong>${newEmployee._id}</strong></p>
+        <p>Pls, be sure to keep this safe, and you would need it to enable you to sign in.</p>
+        <p>Thanks and warm regards.</p>`,
+      };
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log(error);
+          return res
+            .status(500)
+            .json({ message: "Error sending email! Check email!" });
+        } else {
+          return res.status(200).json({ message: "Email sent successfully" });
+        }
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "INTERNAL SERVER ERROR",
+      message: "Error processing images or saving to the database",
     });
   }
-});
+};
 
 exports.getAllEmployees = async (req, res, next) => {
   const allEmployees = await Employee.find({}).populate("department");
