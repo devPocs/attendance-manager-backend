@@ -26,12 +26,14 @@ exports.addNewEmployee = async (req, res, next) => {
   const { name, email, department, role, gender, label } = req.body;
 
   const descriptions = [];
-
+  console.log("images :", req.images);
   try {
     // Loop through the images
     for (let i = 0; i < req.images.length; i++) {
       const imageData = req.images[i];
+      console.log(imageData);
       const image = await loadImage(imageData);
+      console.log(image);
 
       // Create a canvas with the same dimensions as the image
       const canvas = createCanvas(image.width, image.height);
@@ -41,13 +43,12 @@ exports.addNewEmployee = async (req, res, next) => {
       ctx.drawImage(image, 0, 0);
 
       // Read each face and save the face descriptions in the descriptions array
-      console.log(canvas);
+
       const detections = await faceapi
         .detectSingleFace(canvas)
         .withFaceLandmarks()
         .withFaceDescriptor();
 
-      console.log(detections);
       descriptions.push(detections.descriptor);
     }
 
