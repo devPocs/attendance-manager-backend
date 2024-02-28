@@ -85,8 +85,19 @@ exports.compareImage = async (req, res) => {
     const results = resizedDetections.map((d) =>
       faceMatcher.findBestMatch(d.descriptor)
     );
-
-    return res.json({ result: results });
+    if (results === undefined) {
+      return res.json({ statusCode: 400, label: null, success: false });
+    }
+    if (results.length > 0)
+      return res.json({
+        results,
+        statusCode: 200,
+        label: results[0]._label,
+        success: true,
+      });
+    if (results.length === 0) {
+      return res.json({ statusCode: 400, label: null, success: false });
+    }
   }
 };
 
