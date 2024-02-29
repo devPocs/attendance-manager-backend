@@ -12,7 +12,6 @@ const departmentRoute = require("./routes/departmentRoute");
 const timeInRoute = require("./routes/timeInRoute");
 const employeeAttendanceRoute = require("./routes/employeeAttendanceRoute");
 const employeeRoute = require("./routes/employeeRoute");
-const viewsRoute = require("./routes/viewsRoute");
 //const { myCalendar } = require("./calendar");
 const { initializeTimeIn } = require("./utils/helperFunctions");
 const { MongoClient, ServerApiVersion } = require("mongodb");
@@ -37,23 +36,22 @@ cloudinary.config({
   api_secret: "lgZrOgteHsLtLS41HywQrAI8JY0",
 });
 
-mongoose.connect("mongodb://127.0.0.1:27017/AttendanceManager");
+//mongoose.connect("mongodb://127.0.0.1:27017/AttendanceManager");
 
-//const uri =
-//"mongodb+srv://pokohufuoma:ZzDT4rHtbSC4VSY1@cluster0.zjsj0kz.mongodb.net/Application-Manager?retryWrites=true&w=majority";
-
+const uri =
+  "mongodb+srv://pokohufuoma:ZzDT4rHtbSC4VSY1@cluster0.zjsj0kz.mongodb.net/Application-Manager?retryWrites=true&w=majority";
 //db connection.
-//mongoose
-//  .connect(uri, {
-//    useNewUrlParser: true,
-//    useUnifiedTopology: true,
-//  })
-//  .then(() => {
-//    console.log("Connected to MongoDB Atlas");
-//  })
-//  .catch((err) => {
-//    console.error("Error connecting to MongoDB Atlas:", err);
-//  });
+mongoose
+  .connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Connected to MongoDB Atlas");
+  })
+  .catch((err) => {
+    console.error("Error connecting to MongoDB Atlas:", err);
+  });
 
 const corsOptions = {
   origin: "http://localhost:3000",
@@ -86,8 +84,6 @@ app.use("/api/v1/employees", employeeRoute);
 app.use("/api/v1/employees/signIn", timeInRoute);
 app.use("/api/v1/attendance", employeeAttendanceRoute);
 //app.get("/app/v1/get_event", myCalendar);
-app.use("/api/v1/", viewsRoute);
-
 app.use(["/api/v1/admin", "/app/v1/superAdmin"], admin);
 app.use("/api/v1/superAdmin", superAdmin);
 

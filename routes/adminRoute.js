@@ -57,32 +57,7 @@ admin.post(
     ];
 
     req.images = images;
-    console.log(req.images);
     next();
-    //
-    //  try {
-    //    const result = await cloudinary.uploader
-    //      .upload_stream({ folder: "employee-images" }, (error, result) => {
-    //        if (error) {
-    //          console.error(error);
-    //          return res.status(500).json({
-    //            status: "INTERNAL SERVER ERROR",
-    //            message: "Error uploading image to Cloudinary",
-    //          });
-    //        }
-    //
-    //        req.image = result.secure_url;
-    //        next();
-    //      })
-    //      .end(imageBuffer);
-    //  } catch (error) {
-    //    console.error(error);
-    //    return res.status(500).json({
-    //      status: "INTERNAL SERVER ERROR",
-    //      message: "Error uploading image to Cloudinary",
-    //    });
-    //  }
-    //},
   },
   checkNewUser,
   addNewEmployee
@@ -90,7 +65,7 @@ admin.post(
 
 admin.get("/all_employees", getAllEmployees);
 admin.get("/search_employee", getEmployee);
-admin.patch("/edit_employee", editEmployee);
+admin.put("/edit_employee", editEmployee);
 admin.post("/employee_times", getEmployeeTimeIns);
 //router.delete("/delete", deleteEmployee)
 

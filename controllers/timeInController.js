@@ -35,6 +35,7 @@ function punctualityCheck(timeIn) {
 */
 exports.postTimeIn = catchAsync(async (req, res, next) => {
   const employeeId = req.body.employeeId;
+
   //check employeeid in the employee schema first.
   const employeeCheck = await Employee.find({ employeeId: employeeId });
 
@@ -60,7 +61,9 @@ exports.postTimeIn = catchAsync(async (req, res, next) => {
     );
 
     if (existingTimeInForToday) {
-      return next(new ErrorHandler("Staff is already signed in!", 400));
+      return next(
+        new ErrorHandler("Staff is already signed in for today!", 400)
+      );
     }
   }
 

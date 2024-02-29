@@ -14,15 +14,12 @@ async function getDescriptorsFromDB(imageBuffer, id) {
       employee.descriptions.map((desc) => new Float32Array(Object.values(desc)))
     );
   });
-  console.log(labeledFaceDescriptors);
+
   // Load face matcher to find the matching face
   const faceMatcher = new faceapi.FaceMatcher(labeledFaceDescriptors, 0.6);
 
   // Read the image using canvas
   const img = await loadImage(imageBuffer);
-
-  console.log("img:", img);
-  console.log("mike");
   const canvas = createCanvas(img.width, img.height);
   const ctx = canvas.getContext("2d");
   ctx.drawImage(img, 0, 0);
@@ -66,8 +63,6 @@ exports.compareImage = async (req, res) => {
     const imageData = req.image[i];
 
     const img = await loadImage(imageData);
-
-    console.log("img:", img);
     let temp = faceapi.createCanvasFromMedia(img);
 
     const displaySize = { width: img.width, height: img.height };
@@ -78,10 +73,8 @@ exports.compareImage = async (req, res) => {
       .detectAllFaces(img)
       .withFaceLandmarks()
       .withFaceDescriptors();
-    console.log("detections :", detections);
 
     const resizedDetections = faceapi.resizeResults(detections, displaySize);
-    console.log("resizedDetections:", resizedDetections);
     const results = resizedDetections.map((d) =>
       faceMatcher.findBestMatch(d.descriptor)
     );

@@ -26,15 +26,13 @@ exports.addNewEmployee = async (req, res, next) => {
   const { name, email, department, role, gender, label } = req.body;
 
   const descriptions = [];
-  console.log("images :", req.images);
+
   try {
     // Loop through the images
     for (let i = 0; i < req.images.length; i++) {
       const imageData = req.images[i];
-      console.log(imageData);
-      const image = await loadImage(imageData);
-      console.log(image);
 
+      const image = await loadImage(imageData);
       // Create a canvas with the same dimensions as the image
       const canvas = createCanvas(image.width, image.height);
       const ctx = canvas.getContext("2d");
@@ -78,7 +76,6 @@ exports.addNewEmployee = async (req, res, next) => {
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.log(error);
           return res
             .status(500)
             .json({ message: "Error sending email! Check email!" });
@@ -88,7 +85,6 @@ exports.addNewEmployee = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.error(error);
     return res.status(500).json({
       status: "INTERNAL SERVER ERROR",
       message: "Error processing images or saving to the database",
@@ -103,6 +99,7 @@ exports.getAllEmployees = async (req, res, next) => {
 
 exports.getEmployee = async (req, res, next) => {
   const employeeId = req.query.employeeId;
+  console.log(employeeId);
 
   const employee = await Employee.find({ employeeId: employeeId });
 
@@ -116,8 +113,6 @@ exports.getEmployee = async (req, res, next) => {
 
 exports.editEmployee = async (req, res, next) => {
   const employeeID = req.body.employeeId;
-  console.log(employeeID);
-  console.log(req.body);
 
   if (!req.body.name || !req.body.email || !req.body.role || !req.body.gender) {
     return res.status(400).send("Pls, complete the form");
@@ -134,9 +129,7 @@ exports.editEmployee = async (req, res, next) => {
         new: true,
       }
     );
-    return res.status(200).send("edited");
-    //res.status(200).render("editEmployee", updatedDetails);
-    next();
+    return res.json({ statusCode: 200, message: "edited!" });
   }
 };
 
@@ -148,6 +141,7 @@ exports.editEmployee = async (req, res, next) => {
 
 exports.getEmployeeTimeIns = catchAsync(async (req, res, next) => {
   const employeeId = req.body.employeeId;
+  console.log(employeeId);
 
   const timeInDetails = await TimeIn.findOne({ employeeId: employeeId });
   if (!timeInDetails) {
