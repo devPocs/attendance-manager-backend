@@ -74,9 +74,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
 
-app.use("/", (req, res, next) => {
-  return res.send("this is the home page, man");
-});
+//app.use("/", (req, res, next) => {
+//  return res.send("this is the home page, man");
+//});
 
 //define app middlwares
 app.use("/api/v1/departments", departmentRoute);
