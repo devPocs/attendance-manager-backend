@@ -74,7 +74,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
 
-app.get("/home", (req, res, next) => {
+app.use("/", (req, res, next) => {
   return res.send("this is the home page, man");
 });
 
