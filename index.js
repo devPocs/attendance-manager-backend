@@ -54,7 +54,7 @@ mongoose
   });
 
 const corsOptions = {
-  origin: "https://attendance-management-vjod.vercel.app/",
+  origin: "https://attendance-management-vjod.vercel.app",
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
@@ -72,7 +72,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
+app.use(cors(corsOptions));
 
 //app.use("/", (req, res, next) => {
 //  return res.send("this is the home page, man");
