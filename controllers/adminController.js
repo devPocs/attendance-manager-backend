@@ -66,10 +66,10 @@ exports.addNewEmployee = async (req, res, next) => {
         from: "pokoh.ufuoma@gmail.com",
         to: email,
         subject: "New Employee",
-        text: `Hello, ${name},\n\nYou have been onboarded. Your employee id is: ${newEmployee._id}\n\nPls, be sure to keep this safe and you would need it to enable you to sign in.\n\nThanks and warm regards.`,
+        text: `Hello, ${name},\n\nYou have been onboarded. Your employee id is: ${newEmployee.employeeId}\n\nPls, be sure to keep this safe and you would need it to enable you to sign in.\n\nThanks and warm regards.`,
 
         html: `<h2>Hello, ${name},</h2> 
-        <p>You have been onboarded. Your employee id is: <strong>${newEmployee._id}</strong></p>
+        <p>You have been onboarded. Your employee id is: <strong>${newEmployee.employeeId}</strong></p>
         <p>Pls, be sure to keep this safe, and you would need it to enable you to sign in.</p>
         <p>Thanks and warm regards.</p>`,
       };
@@ -78,7 +78,10 @@ exports.addNewEmployee = async (req, res, next) => {
         if (error) {
           return res
             .status(500)
-            .json({ message: "Error sending email! Check email!" });
+            .json({
+              message:
+                "Error sending email! or email already exists! Check email!",
+            });
         } else {
           return res.status(200).json({ message: "Email sent successfully" });
         }
@@ -99,7 +102,6 @@ exports.getAllEmployees = async (req, res, next) => {
 
 exports.getEmployee = async (req, res, next) => {
   const employeeId = req.query.employeeId;
-  console.log(employeeId);
 
   const employee = await Employee.find({ employeeId: employeeId });
 

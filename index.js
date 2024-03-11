@@ -53,22 +53,23 @@ mongoose
     console.error("Error connecting to MongoDB Atlas:", err);
   });
 
-app.use((req, res, next) => {
-  res.header(
-    "Access-Control-Allow-Origin",
-    "https://attendance-management-vjod.vercel.app"
-  );
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
+//app.use((req, res, next) => {
+//  res.header(
+//    "Access-Control-Allow-Origin",
+//    "https://attendance-management-vjod.vercel.app"
+//  );
+//  res.header(
+//    "Access-Control-Allow-Headers",
+//    "Origin, X-Requested-With, Content-Type, Accept"
+//  );
+//  next();
+//});
 
-//const corsOptions = {
-//  origin: "https://attendance-management-vjod.vercel.app",
-//  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-//};
+const corsOptions = {
+  origin: "https://attendance-management-vjod.vercel.app",
+  //origin: "http://localhost:3001",
+  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+};
 
 async function LoadModels() {
   // Load the models
@@ -84,7 +85,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-//app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
 //app.use("/", (req, res, next) => {
 //  return res.send("this is the home page, man");

@@ -23,6 +23,7 @@ exports.addNewDepartment = catchAsync(async (req, res, next) => {
 
 exports.getAllDepartments = catchAsync(async (req, res, next) => {
   const allDepartments = await Department.find({});
+  console.log(allDepartments);
 
   res.status(200).json({ status: "success", departments: allDepartments });
 });
