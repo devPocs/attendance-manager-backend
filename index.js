@@ -65,11 +65,18 @@ mongoose
 //  next();
 //});
 
-const corsOptions = {
-  origin: "https://attendance-management-vjod.vercel.app",
-  //origin: "http://localhost:3001",
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-};
+//const corsOptions = {
+//  origin: "https://attendance-management-vjod.vercel.app",
+//  //origin: "http://localhost:3001",
+//  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+//};
+
+//app middlewares
+app.use(morgan("dev"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors());
 
 async function LoadModels() {
   // Load the models
@@ -79,13 +86,6 @@ async function LoadModels() {
   await faceapi.nets.ssdMobilenetv1.loadFromDisk(__dirname + "/faceModels");
 }
 LoadModels();
-
-//app middlewares
-app.use(morgan("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use(cors(corsOptions));
 
 //app.use("/", (req, res, next) => {
 //  return res.send("this is the home page, man");
